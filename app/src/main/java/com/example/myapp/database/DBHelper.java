@@ -208,20 +208,26 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public List<Book> getAllBorrowBooks(){
         SQLiteDatabase db = this.getWritableDatabase();
+
         List<Book> list = new ArrayList<>();
-        try(Cursor cursor = db.query("books",null,"account_id=?",new String[]{String.valueOf(Account.getID())},null,null,null)){
-            if(cursor.moveToFirst()){
-                do{
-                    Book book = new Book(
-                            cursor.getInt(0),       //id
-                            cursor.getInt(1),       //account id
-                            cursor.getString(2),    //title
-                            cursor.getString(3),    //description
-                            cursor.getString(4),    //author
-                            cursor.getInt(5)
-                    );
-                    list.add(book);
-                }while(cursor.moveToNext());
+        try(Cursor getBookID = db.query("borrow_list", null,"account_id=?",new String[]{String.valueOf(Account.getID())}, null ,null ,null  )){
+            while  ( getBookID.moveToNext())
+            {
+                int bookID= getBookID.getInt(0);
+                try(Cursor cursor = db.query("books",null,"id=?",new String[]{String.valueOf(bookID)},null,null,null)){
+                    if(cursor.moveToFirst())
+                    {
+                        Book book = new Book(
+                                cursor.getInt(0),       //id
+                                cursor.getInt(1),       //account id
+                                cursor.getString(2),    //title
+                                cursor.getString(3),    //description
+                                cursor.getString(4),    //author
+                                cursor.getInt(5)
+                        );
+                        list.add(book);
+                    }
+                }
             }
         }
         return list;
